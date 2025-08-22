@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import Search from './components/Search'
 import Loader from './components/Loader';
+import MovieCard from './components/MovieCard';
 // API - Application Programming Interface - a set of rules that allows one software application to talk to another
 // Api base url
 const API_BASE_URL = 'https://api.themoviedb.org/3';
@@ -86,7 +87,8 @@ const App = () => {
             ) : (
               <ul>
                 {movieList.map((movie) => (
-                  <p key={movie.id} className='text-white'>{movie.title}</p>
+                  // defining a props to fetch a value using component
+                  <MovieCard key={movie.id} movie={movie}/>
                 ))}
               </ul>
             )
