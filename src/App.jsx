@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import Search from './components/Search'
 import Loader from './components/Loader';
 import MovieCard from './components/MovieCard';
+import { useDebounce } from 'react-use';
 // API - Application Programming Interface - a set of rules that allows one software application to talk to another
 // Api base url
 const API_BASE_URL = 'https://api.themoviedb.org/3';
@@ -28,6 +29,12 @@ const App = () => {
   const [movieList, setMovieList] = useState([])
   // state to define loading of data value
   const [isLoading, setIsLoading] = useState(false)
+  // state to debounce a search input
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('')
+
+// defining a hook for debouncing which debounce the search term to prevent making too many API requests like rate limiting for usage
+// by waiting for user to stop typing for 500ms
+useDebounce(() => setDebouncedSearchTerm(searchTerm), 500, [searchTerm])
 
   // function to fetch movie data
   const fetchMovies = async (query = "") => {
@@ -64,8 +71,8 @@ const App = () => {
 
   // only load at start with its dependencies
   useEffect(() => {
-    fetchMovies(searchTerm)
-  }, [searchTerm]);//the dependencies is defined to update and fetched a movies list
+    fetchMovies(debouncedSearchTerm)
+  }, [debouncedSearchTerm]);//the dependencies is defined to update and fetched a movies list
 
   return (
     <main>
