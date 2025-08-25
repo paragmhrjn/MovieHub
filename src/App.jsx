@@ -3,7 +3,7 @@ import Search from './components/Search'
 import Loader from './components/Loader';
 import MovieCard from './components/MovieCard';
 import { useDebounce } from 'react-use';
-import { updateSearchCount } from './appwrite';
+import { getTrendingMovies, updateSearchCount } from './appwrite';
 // API - Application Programming Interface - a set of rules that allows one software application to talk to another
 // Api base url
 const API_BASE_URL = 'https://api.themoviedb.org/3';
@@ -32,6 +32,8 @@ const App = () => {
   const [isLoading, setIsLoading] = useState(false)
   // state to debounce a search input
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('')
+  // state to get value of trending movies
+  const [trendingMovies, setTrendingMovies] = useState([])
 
 // defining a hook for debouncing which debounce the search term to prevent making too many API requests like rate limiting for usage
 // by waiting for user to stop typing for 500ms
@@ -62,7 +64,7 @@ useDebounce(() => setDebouncedSearchTerm(searchTerm), 500, [searchTerm])
 
       setMovieList(data.results || [])
 
-      // to update search count and enable db
+      // to update search count and enable db to store search
       if(query && data.results.length > 0) {
         await updateSearchCount(query, data.results[0]);
       }
@@ -75,11 +77,27 @@ useDebounce(() => setDebouncedSearchTerm(searchTerm), 500, [searchTerm])
     }
   }
 
+  // function to load trendy movies list
+  const loadTrendingMovies = async() => {
+    try {
+      const movies = await getTrendingMovies()
+
+      setTrendingMovies(movies)
+    } catch (error) {
+      console.error(`Error Fetching trending Movies: ${error}`);
+      
+    }
+  }
+
   // only load at start with its dependencies
   useEffect(() => {
     fetchMovies(debouncedSearchTerm)
   }, [debouncedSearchTerm]);//the dependencies is defined to update and fetched a movies list
 
+  // to load trndy movies only load at start
+  useEffect(() => {
+    loadTrendingMovies()
+  }, [])
   return (
     <main>
       <div className='pattern'>
@@ -91,6 +109,41 @@ useDebounce(() => setDebouncedSearchTerm(searchTerm), 500, [searchTerm])
             <Search searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
           </header>
           <h1>{searchTerm}</h1>
+
+          {trendingMovies.length > 0 && (
+            <section className="trending-section mt-16 px-5 sm:px-10 max-w-7xl mx-auto">
+              {/* Section Title */}
+              <h2 className="text-white text-3xl sm:text-4xl font-bold mb-10">
+                🔥 Trending Movies
+              </h2>
+
+              {/* Grid Layout: 5 per row on large screens */}
+              <ul className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+                {trendingMovies.map((movie, index) => (
+                  <li
+                    key={movie.$id}
+                    className="relative flex items-center group"
+                  >
+                    {/* Large Rank Number */}
+                    <span className="text-[64px] sm:text-[80px] font-extrabold text-light-100/20 leading-none tracking-tighter mr-3 -ml-1">
+                      {index + 1}
+                    </span>
+
+                    {/* Poster */}
+                    <div className="relative w-[127px] h-[163px] sm:w-[140px] sm:h-[200px] lg:w-[160px] lg:h-[220px] overflow-hidden rounded-lg shadow-md transition-transform duration-300 group-hover:scale-105">
+                      <img
+                        src={movie.poster_url}
+                        alt={movie.title}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </section>
+
+
+          )}
 
           <section className='all-movies'>
             <h2 className='mt-[40px]'>All Movies</h2>
