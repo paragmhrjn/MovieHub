@@ -3,6 +3,7 @@ import Search from './components/Search'
 import Loader from './components/Loader';
 import MovieCard from './components/MovieCard';
 import { useDebounce } from 'react-use';
+import { updateSearchCount } from './appwrite';
 // API - Application Programming Interface - a set of rules that allows one software application to talk to another
 // Api base url
 const API_BASE_URL = 'https://api.themoviedb.org/3';
@@ -60,6 +61,11 @@ useDebounce(() => setDebouncedSearchTerm(searchTerm), 500, [searchTerm])
       }
 
       setMovieList(data.results || [])
+
+      // to update search count and enable db
+      if(query && data.results.length > 0) {
+        await updateSearchCount(query, data.results[0]);
+      }
     } catch (error) {
       console.error(`Error fetching movies: ${error}`);
       // set error message value to display
