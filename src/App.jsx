@@ -30,12 +30,13 @@ const App = () => {
   const [isLoading, setIsLoading] = useState(false)
 
   // function to fetch movie data
-  const fetchMovies = async () => {
+  const fetchMovies = async (query = "") => {
     setIsLoading(true)
     setErrorMessage('')
     try {
-      // defining endpoint of api
-      const endpoint = `${API_BASE_URL}/discover/movie?sort_by=popularity.desc`;
+      // defining endpoint of api and condition to check for query of list and update it | encode uri to make it secure and fully function
+      const endpoint = query ? `${API_BASE_URL}/search/movie?query=${encodeURIComponent(query)}`
+      : `${API_BASE_URL}/discover/movie?sort_by=popularity.desc`;
       // to fetch a data from api
       const response = await fetch(endpoint, API_OPTIONS);
       // parse to json object to get value
@@ -63,8 +64,8 @@ const App = () => {
 
   // only load at start with its dependencies
   useEffect(() => {
-    fetchMovies()
-  }, []);
+    fetchMovies(searchTerm)
+  }, [searchTerm]);//the dependencies is defined to update and fetched a movies list
 
   return (
     <main>

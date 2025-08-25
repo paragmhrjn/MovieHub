@@ -3,7 +3,7 @@
 
 @import "tailwindcss";
 
-:root {
+@theme {
   --color-primary: #030014;
   --color-light-100: #cecefb;
   --color-light-200: #a8b5db;
@@ -61,7 +61,7 @@
     @apply mt-20;
 
     & ul {
-      @apply flex flex-row overflow-y-auto gap-5 -mt-10 w-full hide-scrollbar;
+      @apply flex flex-row overflow-y-auto gap-5 -mt-10 w-full;
     }
 
     & ul li {
@@ -69,7 +69,7 @@
     }
 
     & ul li p {
-      @apply fancy-text mt-[22px] text-nowrap;
+      @apply mt-[22px] text-nowrap;
     }
 
     & ul li img {
